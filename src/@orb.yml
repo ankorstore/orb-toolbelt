@@ -1,8 +1,9 @@
 version: 2.1
 
 description: >
-  A set of tools for crafting re-usable workflows
+  This orb provides a set of tools for crafting re-usable workflows.
+  
+  Such as a command `pass-fast` to assist only rerunning failed nodes of parallel jobs on job retries! 
 
-# This information will be displayed in the orb registry and is not mandatory.
 display:
   source_url: "https://github.com/ankorstore/orb-toolbelt"
