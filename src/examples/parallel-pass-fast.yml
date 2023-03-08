@@ -1,0 +1,25 @@
+description: >
+  Pass each node of a parallel job fast on retries if its already succeeded in this pipeline.
+usage:
+  version: 2.1
+  orbs:
+    toolbelt: ankorstore/toolbelt@1.0.0
+  workflows:
+    test:
+      jobs:
+        - test
+  jobs:
+    test:
+      docker:
+        - image: cimg/base
+      resource_class: small
+      parallelism: 2
+      steps:
+        - toolbelt/pass-fast:
+            steps:
+              - run:
+                  name: Some work you dont want to repeat
+                  command: echo "Doing some work you dont want to repeat";
+              - run:
+                  name: The first node wont repeat once it has passed, the second node will always fail and so will be repeated.
+                  command: exit $CIRCLE_NODE_INDEX;
