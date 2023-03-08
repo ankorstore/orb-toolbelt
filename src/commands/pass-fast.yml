@@ -14,8 +14,6 @@ parameters:
   steps:
     type: steps
     description: Job steps to execute if not passing fast
-environment:
-  CIRCLE_PIPELINE_ID: << parameters.pipeline-id >>
 steps:
   - restore_cache:
       name: Getting job history
@@ -23,7 +21,9 @@ steps:
         - pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-$CIRCLE_PIPELINE_ID
   - run:
       name: Restoring previous artifacts
-      command: << include(scripts/pass-fast.sh) >>
+      environment:
+        CIRCLE_PIPELINE_ID: << parameters.pipeline-id >>
+      command: << include(scripts/pass-fast/restore.sh) >>
   - store_artifacts:
       name: Storing restored artifacts
       path: .
@@ -38,18 +38,11 @@ steps:
             path: << parameters.test-results >>
   - run:
       name: Pass fast if we have a previous pass of this job in this pipeline
-      command: |
-        if [ "$PASS_FAST" = "true" ]; then
-          echo "This job has succeeded previously in this pipeline skipping..."
-          circleci-agent step halt
-        fi
+      command: << include(scripts/pass-fast/skip.sh) >>
   - steps: << parameters.steps >>
   - run:
       name: Recording job success for this revision
-      command: |
-        mkdir .pass
-        PASS=$(echo "$CIRCLE_JOB-$CIRCLE_NODE_INDEX-$CIRCLE_PIPELINE_ID" | sed -e "s/[^[:alnum:]]/-/g" | tr -s "-" | tr A-Z a-z)
-        echo "Success!" > ".pass/$PASS"
+      command: << include(scripts/pass-fast/record.sh) >>
   - save_cache:
       name: Saving job success for this revision
       key: pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-$CIRCLE_PIPELINE_ID
