@@ -13,7 +13,7 @@ parameters:
       For multiple jobs the list must be comma separated.
     type: string
   continue-on-timeout:
-    default: true
+    default: false
     description: If true and wait time exceeds the max wait time, completes and lets future steps continue
     type: boolean
   max-wait-time:
