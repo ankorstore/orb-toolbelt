@@ -1,0 +1,43 @@
+description: Report a GitHub Commit Status
+parameters:
+  when:
+    description: When to send the status.
+    type: enum
+    enum: [ "on_success", "on_fail", "always"]
+    default: on_success
+  state:
+    description: The state of the status.
+    type: enum
+    enum: ["error", "failure", "pending", "success"]
+  description:
+    description: >-
+      A short description of the status.
+      This will default to the value of the `context` parameter.
+      This value will be remembered for subsequent calls to this command in teh same job so you do not need to repeat it when updating a status.
+    type: string
+    default: ""
+  context:
+    description: >-
+      A string label to differentiate this status from the status of other systems.
+      This field is case-insensitive.
+      This will default to to `circleci/$CIRCLE_JOB`
+      This value will be remembered for subsequent calls to this command in teh same job so you do not need to repeat it when updating a status.
+    type: string
+    default: ""
+  target:
+    description: >-
+      The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
+      This will default to to `$CIRCLE_BUILD_URL`
+      This value will be remembered for subsequent calls to this command in teh same job so you do not need to repeat it when updating a status.
+    type: string
+    default: ""
+steps:
+  - run:
+      when: << parameters.when >>
+      name: "Reporting GitHub Status: << parameters.context >> : << parameters.state >>"
+      environment:
+        STATE: << parameters.state >>
+        CONTEXT: << parameters.context >>
+        DESCRIPTION: << parameters.description >>
+        TARGET: << parameters.target >>
+      command: << include(scripts/github-status.sh) >>

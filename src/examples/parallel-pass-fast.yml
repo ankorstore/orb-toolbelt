@@ -5,11 +5,11 @@ usage:
   orbs:
     toolbelt: ankorstore/toolbelt@1.0.0
   workflows:
-    test:
+    pass-fast-example:
       jobs:
-        - test
+        - my-job
   jobs:
-    test:
+    my-job:
       docker:
         - image: cimg/base
       resource_class: small
