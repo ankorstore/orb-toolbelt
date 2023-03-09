@@ -50,8 +50,8 @@ do
       fi
       break
     else
-      echo "Looks like $JOB_NAME($JOB_NUMBER) is still not done. Status: $JOB_STATUS"
-      echo "Going to sleep for $SLEEP_TIME"
+      echo "  $JOB_NAME ($JOB_NUMBER) is still not done. Status: $JOB_STATUS"
+      echo "  Sleeping for $SLEEP_TIME"
       sleep "$SLEEP_TIME"
       CURRENT_WAIT_TIME=$(( CURRENT_WAIT_TIME + SLEEP_TIME ))
     fi
