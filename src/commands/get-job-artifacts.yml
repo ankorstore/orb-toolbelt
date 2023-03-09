@@ -14,10 +14,15 @@ parameters:
     description: Preserve the artifact paths/directories
     type: boolean
     default: true
-  file-name-pattern:
-    description: A regex pattern for the file path(s) to be downloaded
+  path-pattern:
+    description: A regex pattern for the artifact path(s) to be downloaded
     type: string
 steps:
   - run:
       name: Downloading artifacts
+      environment:
+        JOB_LIST: << parameters.job-name >>
+        TARGET_PATH: << parameters.save-to-directory >>
+        PRESERVE_PATHS: << parameters.preserve-paths >>
+        TARGET_ARTIFACT_PATTERN: << parameters.path-pattern >>
       command: << include(scripts/get-job-artifacts.sh) >>
