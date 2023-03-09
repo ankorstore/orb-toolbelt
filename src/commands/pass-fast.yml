@@ -1,8 +1,13 @@
 description: >
   This command will pass a job (or individual node of a parallel job) fast on retries when it has previously succeeded in this pipeline.
-  This preserves previous artifacts and optionally resubmits test results so that the resulting
-  job report and artifacts are consistent.
+
+  This preserves previous artifacts and optionally resubmits test results so that the resulting job report and artifacts are consistent.
+
   This command should be the first step in your job and all other steps should be provided as the `steps` parameter.
+
+  This command requires jq to be installed (it is already on all circleci cimg/* images).
+
+  This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
 parameters:
   pipeline-id:
     type: string

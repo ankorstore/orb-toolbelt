@@ -1,0 +1,17 @@
+description: >
+  If this job fails then cancel the whole workflow.
+
+  This can be useful to prevent unnecessary work in jobs still executing when you know the workflow has already failed.
+
+  This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
+parameters:
+  why:
+    type: string
+    default: "Cancelling workflow as this job has failed."
+steps:
+  - run:
+      name: Failing Fast
+      when: on_fail
+      environment:
+        WHY: << parameters.why >>
+      command: << include(scripts/fail-fast.sh) >>

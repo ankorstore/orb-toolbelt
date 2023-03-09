@@ -1,0 +1,31 @@
+description: >
+  Fail the workflow fast if one job fails to avoid wasting time and resources on still running jobs.
+usage:
+  version: 2.1
+  orbs:
+    toolbelt: ankorstore/toolbelt@1.0.0
+  workflows:
+    fail-fast-example:
+      jobs:
+        - long-job
+        - fail-job
+  jobs:
+    long-job:
+      docker:
+        - image: cimg/base
+      resource_class: small
+      steps:
+        - run:
+            name: This job would take 5 minutes but will be cancelled when the other job fails.
+            command: sleep 5m;
+    fail-job:
+      docker:
+        - image: cimg/base
+      resource_class: small
+      steps:
+        - run:
+            name: This job will fail, cancelling the workflow.
+            command: |
+              echo "Failing"
+              exit 1
+        - toolbelt/fail-fast
