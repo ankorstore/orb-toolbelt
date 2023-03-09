@@ -21,7 +21,7 @@ get_job_status() {
   local WORKFLOW_JOBS_JSON="/tmp/aks/wf_$CIRCLE_WORKFLOW_ID.json"
   curl  -f -s --retry 3 "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
   STATUS=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .status | values" "$WORKFLOW_JOBS_JSON")
-  NUMBER=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .JOB_NUMBER | values" "$WORKFLOW_JOBS_JSON")
+  NUMBER=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .job_number | values" "$WORKFLOW_JOBS_JSON")
   echo "$STATUS $NUMBER"
 }
 
