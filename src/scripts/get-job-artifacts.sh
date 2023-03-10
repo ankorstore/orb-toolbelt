@@ -35,7 +35,7 @@ get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
   curl -f -s --retry 3 "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
   local REQUIRED_ARTIFACTS
-  REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test("$target_artifact_pattern")) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
+  REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test($target_artifact_pattern)) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
 
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
