@@ -23,7 +23,7 @@ steps:
   - restore_cache:
       name: Getting job history
       keys:
-        - pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-$CIRCLE_PIPELINE_ID
+        - pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline-id >>
   - run:
       name: Restoring previous artifacts
       environment:
@@ -50,6 +50,6 @@ steps:
       command: << include(scripts/pass-fast/record.sh) >>
   - save_cache:
       name: Saving job success for this revision
-      key: pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-$CIRCLE_PIPELINE_ID
+      key: pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline-id >>
       paths:
         - .pass
