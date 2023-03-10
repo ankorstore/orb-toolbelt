@@ -47,6 +47,8 @@ steps:
   - steps: << parameters.steps >>
   - run:
       name: Recording job success for this revision
+      environment:
+        CIRCLE_PIPELINE_ID: << parameters.pipeline-id >>
       command: << include(scripts/pass-fast/record.sh) >>
   - save_cache:
       name: Saving job success for this revision
