@@ -25,6 +25,7 @@ workflows:
           requires:
             [orb-tools/lint, orb-tools/review, orb-tools/pack, shellcheck/check]
           context: orb-publishing
+          filters: *filters
       - orb-tools/continue:
           pipeline-number: << pipeline.number >>
           vcs-type: << pipeline.project.type >>
