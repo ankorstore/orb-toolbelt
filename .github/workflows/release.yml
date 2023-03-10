@@ -1,0 +1,21 @@
+# .github/workflows/release.yml
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.merged
+
+    steps:
+      - name: Generate Semver release
+        uses: nitinses/semver-release-action@v1.0.8
+        with:
+          release_branch: master
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
