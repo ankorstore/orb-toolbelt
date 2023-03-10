@@ -20,16 +20,8 @@ A set of tools for crafting re-usable workflows
 We welcome [issues](https://github.com/ankorstore/orb-toolbelt/issues) to and [pull requests](https://github.com/ankorstore/orb-toolbelt/pulls) against this repository!
 
 ### How to Publish An Update
-1. Merge pull requests with desired changes to the main branch.
-    - For the best experience, squash-and-merge and use [Conventional Commit Messages](https://conventionalcommits.org/).
-2. Find the current version of the orb.
-    - You can run `circleci orb info ankorstore/toolbelt | grep "Latest"` to see the current version.
-3. Create a [new Release](https://github.com/ankorstore/orb-toolbelt/releases/new) on GitHub.
-    - Click "Choose a tag" and _create_ a new [semantically versioned](http://semver.org/) tag. (ex: v1.0.0)
-      - We will have an opportunity to change this before we publish if needed after the next step.
-4.  Click _"+ Auto-generate release notes"_.
-    - This will create a summary of all of the merged pull requests since the previous release.
-    - If you have used _[Conventional Commit Messages](https://conventionalcommits.org/)_ it will be easy to determine what types of changes were made, allowing you to ensure the correct version tag is being published.
-5. Now ensure the version tag selected is semantically accurate based on the changes included.
-6. Click _"Publish Release"_.
-    - This will push a new tag and trigger your publishing pipeline on CircleCI.
+1. Create pull requests with desired changes to the main branch.
+    - Please use [Conventional Commit Messages](https://conventionalcommits.org/).
+2. Label your PR with an appropriate Semver label, either `patch`, `minor`, or `major`
+3. Merge your pr when its CI checks are green or enable `Auto-merge` to do this for you.
+4. A new release will created and published with the appropriate semver version.

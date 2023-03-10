@@ -1,7 +1,7 @@
 #!/bin/bash
 # Get workflows for the current pipeline and extract the previous execution of the current workflows name if there is one
 get_workflows_in_pipeline() {
-  local WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID"
+  local WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID?circle-token=$CIRCLE_TOKEN"
   curl -f -s --retry 3 "$WORKFLOW_ENDPOINT" > /tmp/aks/current_wf.json
   local CIRCLE_WORKFLOW_NAME
   CIRCLE_WORKFLOW_NAME=$(jq -r '.name ' /tmp/aks/current_wf.json)
@@ -23,7 +23,7 @@ get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
   curl -f -s --retry 3 "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
   local REQUIRED_ARTIFACTS
-  REQUIRED_ARTIFACTS=$(jq -r --argjson node_index "${CIRCLE_NODE_INDEX:0}" '.items[] | select(.node_index == $node_index) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
+  REQUIRED_ARTIFACTS=$(jq -r --argjson node_index "${CIRCLE_NODE_INDEX:-0}" '.items[] | select(.node_index == $node_index) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
 
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
