@@ -51,7 +51,7 @@ get_artifacts_for_job() {
     local FILE_PATH="$*"
 
     if $PRESERVE_PATHS; then
-      OUTPUT_PATH=$FILE_PATH
+      OUTPUT_PATH="$FILE_PATH"
     else
       OUTPUT_PATH=$(basename "$FILE_PATH")
     fi
