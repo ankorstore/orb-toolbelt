@@ -7,9 +7,9 @@ parameters:
       You can use regex if you start your name with ^.
     type: string
   save-to-directory:
-    description: Where to save the file(s) to
+    description: Where to save the file(s) to (relative to working directory)
     type: string
-    default: .
+    default: ""
   preserve-paths:
     description: Preserve the artifact paths/directories
     type: boolean
