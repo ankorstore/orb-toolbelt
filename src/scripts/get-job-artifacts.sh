@@ -52,10 +52,12 @@ get_artifacts_for_job() {
 
     if [ "$PRESERVE_PATHS" == "true" ]; then
       OUTPUT_PATH=$FILE_PATH
+      mkdir -p "$(dirname "$OUTPUT_PATH")"
     else
       OUTPUT_PATH=$(basename "$FILE_PATH")
     fi
     echo "Downloading: $FILE_PATH"
+    echo " => $TARGET_PATH/$OUTPUT_PATH"
     curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$TARGET_PATH/$OUTPUT_PATH" "$URL"
   done <<< "$REQUIRED_ARTIFACTS"
 }
