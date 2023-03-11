@@ -56,16 +56,19 @@ get_artifacts_for_job() {
       OUTPUT_PATH=$(basename "$FILE_PATH")
     fi
     echo "Downloading: $FILE_PATH"
-    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$OUTPUT_PATH" "$URL"
+    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$TARGET_PATH/$OUTPUT_PATH" "$URL"
   done <<< "$REQUIRED_ARTIFACTS"
 }
 
+if [ -n "$TARGET_PATH" ]; then
+  mkdir -p "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
+  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
+else
+  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY"
+fi
 
-mkdir -p "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
-# shellcheck disable=SC2164
-cd "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
 echo "Downloading artifact(s) from job(s): $JOB_LIST"
-echo "Downloading artifact(s) to $CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
+echo "Downloading artifact(s) to $TARGET_PATH"
 get_jobs_in_workflow
 for JOB_NAME in ${JOB_LIST//,/ }
 do
