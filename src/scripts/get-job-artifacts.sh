@@ -50,8 +50,8 @@ get_artifacts_for_job() {
     shift
     local FILE_PATH="$*"
 
-    if $PRESERVE_PATHS; then
-      OUTPUT_PATH="$FILE_PATH"
+    if [ "$PRESERVE_PATHS" == "true" ]; then
+      OUTPUT_PATH=$FILE_PATH
     else
       OUTPUT_PATH=$(basename "$FILE_PATH")
     fi
