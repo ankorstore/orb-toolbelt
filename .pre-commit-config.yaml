@@ -25,3 +25,11 @@ repos:
     hooks:
       - id: yamllint
         args: [-c=.yamllint]
+-   repo: local
+    hooks:
+      - id: orb-lint
+        name: orb-lint
+        entry: hack/orb-lint.sh
+        language: script
+        pass_filenames: false
+        files: ^src.*
