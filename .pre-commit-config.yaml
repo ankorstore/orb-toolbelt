@@ -33,3 +33,9 @@ repos:
         language: script
         pass_filenames: false
         files: ^src.*
+      - id: orb-pack-and-validate
+        name: orb-pack-and-validate
+        entry: hack/orb-pack-and-validate.sh
+        language: script
+        pass_filenames: false
+        files: ^src.*
