@@ -44,7 +44,7 @@ do
     fi
     if [[ "$JOB_STATUS" != "queued" && "$JOB_STATUS" != "running" && "$JOB_STATUS" != "not_running" ]]; then
       echo "Job $JOB_NAME has completed! Status: $JOB_STATUS"
-      if [ "$JOB_STATUS" != "success" ] && $CHECK_FOR_FAILURE; then
+      if [ "$JOB_STATUS" != "success" ] && [ "$CHECK_FOR_FAILURE" = 1 ]; then
         echo "The $JOB_NAME job failed, failing this job.";
         exit 1;
       fi
@@ -57,7 +57,7 @@ do
     fi
 
     if (( CURRENT_WAIT_TIME > MAX_WAIT_TIME )); then
-      if $CONTINUE_ON_TIMEOUT; then
+      if [ "$CONTINUE_ON_TIMEOUT" = 1 ]; then
         echo "Max wait timout reached! Proceeding with further steps";
         break
       else
