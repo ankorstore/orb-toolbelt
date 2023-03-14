@@ -1,0 +1,71 @@
+description: Perform a SonarCloud scan and upload results
+parameters:
+  scanner-version:
+    type: string
+    default: "4.7.0.2747"
+    description: The sonar scanner version to use
+  sonar-token:
+    description: The name of the environment variable where the SonarCloud API token is stored
+    default: SONAR_TOKEN
+    type: env_var_name
+  scanner-dir:
+    description: The directory to store and cache the scanner binary
+    type: string
+    default: /tmp/sonar/scanner
+  cache-dir:
+    description: The directory to store the analysis cache
+    type: string
+    default: /tmp/sonar/cache
+  cache-key:
+    description: increment this value if the cache is corrupted and you want to start with a clean cache
+    default: v1
+    type: string
+  project-root:
+    description: The root of the project that should be analyzed (relative to the root directory of the repository)
+    default: .
+    type: string
+  main-branch:
+    type: string
+    default: master
+    description: The main branch of the repository
+  branch:
+    type: string
+    description: The current branch (<< pipeline.git.branch >>)
+steps:
+  - restore_cache:
+      name: Restoring sonar scanner binary cache
+      keys:
+        - sonarcloud-scanner-<< parameters.cache-key >>-<< parameters.scanner-version >>
+  - when:
+      condition:
+        not:
+          equal: [ << parameters.main-branch >>, << parameters.branch >> ]
+      steps:
+        - restore_cache:
+            name: Restoring sonar scanner analysis cache
+            keys:
+              - sonarcloud-cache-<< parameters.cache-key >>
+  - run:
+      name: Running SonarCloud scan
+      environment:
+        CIRCLE_BRANCH: << parameters.branch >>
+        MAIN_BRANCH: << parameters.main-branch >>
+        PROJECT_ROOT: << parameters.project-root >>
+        SCANNER_DIRECTORY: << parameters.scanner-dir >>
+        SONARQUBE_SCANNER_PARAMS: '{"sonar.host.url":"https://sonarcloud.io"}'
+        SONAR_TOKEN_ENV: << parameters.sonar-token >>
+        SONAR_USER_HOME: << parameters.cache-dir >>
+        VERSION: << parameters.scanner-version >>
+      command: << include(scripts/sonar-scan.sh) >>
+  - save_cache:
+      name: Saving sonar scanner binary cache
+      key: sonarcloud-scanner-<< parameters.cache-key >>-<< parameters.scanner-version >>
+      paths: << parameters.scanner-dir >>
+  - when:
+      condition:
+        equal: [ << parameters.main-branch >>, << parameters.branch >> ]
+      steps:
+        - save_cache:
+            name: Saving sonar scanner analysis cache
+            key: sonarcloud-cache-<< parameters.cache-key >>-{{ .Revision }}
+            paths: << parameters.cache-dir >>
