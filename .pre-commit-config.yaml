@@ -19,9 +19,23 @@ repos:
     rev: v0.8.0
     hooks:
       - id: shellcheck
-        args: ["--severity=warning"]
+        args: ["--severity=style"]
 -   repo: https://github.com/adrienverge/yamllint.git
     rev: v1.17.0
     hooks:
       - id: yamllint
         args: [-c=.yamllint]
+-   repo: local
+    hooks:
+      - id: orb-lint
+        name: orb-lint
+        entry: hack/orb-lint.sh
+        language: script
+        pass_filenames: false
+        files: ^src.*
+      - id: orb-pack-and-validate
+        name: orb-pack-and-validate
+        entry: hack/orb-pack-and-validate.sh
+        language: script
+        pass_filenames: false
+        files: ^src.*
