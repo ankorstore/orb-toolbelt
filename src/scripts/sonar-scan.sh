@@ -1,6 +1,12 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail
 export SONAR_TOKEN=${!SONAR_TOKEN_ENV}
+
+if [ -z "$SONAR_TOKEN" ]; then
+  echo "$SONAR_TOKEN_ENV env not set. Please set a valid SonarCloud Access Token in the env var $SONAR_TOKEN_ENV.";
+  echo "Alternatively specify the name of an env containing a valid SonarCloud Access Token in the sonar-token parameter."
+  exit 1;
+fi
 
 if [[ ! -x "$SCANNER_DIRECTORY/sonar-scanner-$VERSION-linux/bin/sonar-scanner" ]]; then
   echo "Scanner binary not found, downloading sonar-scanner-cli-$VERSION"
