@@ -42,7 +42,7 @@ get_artifacts_for_job() {
 
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
-    exit 0;
+    return 0;
   fi
 
   while read -r ARTIFACT
