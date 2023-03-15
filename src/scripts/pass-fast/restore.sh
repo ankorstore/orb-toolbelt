@@ -70,6 +70,8 @@ if [ -f ".pass/$PASS_RECORD" ]; then
     get_job_from_previous_workflow
     if [ -n "$JOB_NUM" ]; then
       echo "Getting artifacts from previous job: $JOB_NUM"
+      # fix unexpanded ~ in CIRCLE_WORKING_DIRECTORY
+      CIRCLE_WORKING_DIRECTORY="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}"
       cd "$CIRCLE_WORKING_DIRECTORY" || exit 1
       get_artifacts_for_job
     else
