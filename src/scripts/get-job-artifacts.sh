@@ -51,22 +51,22 @@ get_artifacts_for_job() {
     local FILE_PATH="$*"
 
     if [ "$PRESERVE_PATHS" = 1 ]; then
-      OUTPUT_PATH=$FILE_PATH
+      OUTPUT_PATH="$TARGET_PATH/$FILE_PATH"
       mkdir -p "$(dirname "$OUTPUT_PATH")"
     else
-      OUTPUT_PATH=$(basename "$FILE_PATH")
+      OUTPUT_PATH="$TARGET_PATH/$(basename "$FILE_PATH")"
     fi
     echo "Downloading: $FILE_PATH"
-    echo " => $TARGET_PATH/$OUTPUT_PATH"
-    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$TARGET_PATH/$OUTPUT_PATH" "$URL"
+    echo " => $OUTPUT_PATH"
+    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$OUTPUT_PATH" "$URL"
   done <<< "$REQUIRED_ARTIFACTS"
 }
 
 if [ -n "$TARGET_PATH" ]; then
-  mkdir -p "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
-  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
+  TARGET_PATH="$(realpath "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH")"
+  mkdir -p "$TARGET_PATH"
 else
-  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY"
+  TARGET_PATH="$(realpath "$CIRCLE_WORKING_DIRECTORY")"
 fi
 
 echo "Downloading artifact(s) from job(s): $JOB_LIST"
