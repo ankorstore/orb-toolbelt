@@ -11,6 +11,9 @@ if [ -z "$CIRCLE_TOKEN" ]; then
   exit 1;
 fi
 
+# fix unexpanded ~ in CIRCLE_WORKING_DIRECTORY
+CIRCLE_WORKING_DIRECTORY="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}"
+
 mkdir -p /tmp/aks
 WORKFLOW_JOBS_JSON=/tmp/aks/current_wf_jobs.json
 
@@ -63,10 +66,10 @@ get_artifacts_for_job() {
 }
 
 if [ -n "$TARGET_PATH" ]; then
-  TARGET_PATH="$(realpath "$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH")"
+  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY/$TARGET_PATH"
   mkdir -p "$TARGET_PATH"
 else
-  TARGET_PATH="$(realpath "$CIRCLE_WORKING_DIRECTORY")"
+  TARGET_PATH="$CIRCLE_WORKING_DIRECTORY"
 fi
 
 echo "Downloading artifact(s) from job(s): $JOB_LIST"
