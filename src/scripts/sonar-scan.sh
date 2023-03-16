@@ -19,7 +19,6 @@ fi
 
 cd "$PROJECT_ROOT"
 SONAR_SCANNER="$SCANNER_DIRECTORY/sonar-scanner-$VERSION-linux/bin/sonar-scanner"
-
 if [ "$CIRCLE_BRANCH" = "$MAIN_BRANCH" ]; then
     $SONAR_SCANNER -Dsonar.branch.name="$MAIN_BRANCH"
 else

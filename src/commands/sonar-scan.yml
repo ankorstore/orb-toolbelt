@@ -31,6 +31,7 @@ parameters:
   branch:
     type: string
     description: The current branch (<< pipeline.git.branch >>)
+    default: ""
 steps:
   - restore_cache:
       name: Restoring sonar scanner binary cache
@@ -48,7 +49,6 @@ steps:
   - run:
       name: Running SonarCloud scan
       environment:
-        CIRCLE_BRANCH: << parameters.branch >>
         MAIN_BRANCH: << parameters.main-branch >>
         PROJECT_ROOT: << parameters.project-root >>
         SCANNER_DIRECTORY: << parameters.scanner-dir >>
