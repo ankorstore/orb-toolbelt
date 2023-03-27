@@ -19,7 +19,7 @@ get_job_status() {
   local NUMBER=""
   local WORKFLOW_JOBS_URL="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
   local WORKFLOW_JOBS_JSON="/tmp/aks/wf_$CIRCLE_WORKFLOW_ID.json"
-  curl  -f -s --retry 3 "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
+  curl  -f -s --retry 3 --retry-all-errors "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
   STATUS=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .status | values" "$WORKFLOW_JOBS_JSON")
   NUMBER=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .job_number | values" "$WORKFLOW_JOBS_JSON")
   echo "$STATUS $NUMBER"

@@ -19,7 +19,7 @@ WORKFLOW_JOBS_JSON=/tmp/aks/current_wf_jobs.json
 
 get_jobs_in_workflow() {
   local WORKFLOW_JOBS_URL="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
+  curl -f -s --retry 3 --retry-all-errors "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
 }
 
 get_artifacts_for_jobs() {
@@ -36,7 +36,7 @@ get_artifacts_for_jobs() {
 
 get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
+  curl -f -s --retry 3 --retry-all-errors "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
   local REQUIRED_ARTIFACTS
   REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test($target_artifact_pattern)) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
 
@@ -61,7 +61,7 @@ get_artifacts_for_job() {
     fi
     echo "Downloading: $FILE_PATH"
     echo " => $OUTPUT_PATH"
-    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$OUTPUT_PATH" "$URL"
+    curl -s -L --retry 3 --retry-all-errors --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$OUTPUT_PATH" "$URL"
   done <<< "$REQUIRED_ARTIFACTS"
 }
 

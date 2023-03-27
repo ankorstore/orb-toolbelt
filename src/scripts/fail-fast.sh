@@ -11,4 +11,4 @@ if [ -z "$CIRCLE_TOKEN" ]; then
 fi
 
 echo "$WHY"
-curl -f -s --retry 3 -X POST --header "Content-Type: application/json" "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"
+curl -f -s --retry 3 --retry-all-errors -X POST --header "Content-Type: application/json" "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"

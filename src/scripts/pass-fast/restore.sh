@@ -2,26 +2,26 @@
 # Get workflows for the current pipeline and extract the previous execution of the current workflows name if there is one
 get_workflows_in_pipeline() {
   local WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$WORKFLOW_ENDPOINT" > /tmp/aks/current_wf.json
+  curl -f -s --retry 3 --retry-all-errors "$WORKFLOW_ENDPOINT" > /tmp/aks/current_wf.json
   local CIRCLE_WORKFLOW_NAME
   CIRCLE_WORKFLOW_NAME=$(jq -r '.name ' /tmp/aks/current_wf.json)
 
   local WORKFLOWS_IN_PIPELINE_ENDPOINT="https://circleci.com/api/v2/pipeline/$CIRCLE_PIPELINE_ID/workflow?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$WORKFLOWS_IN_PIPELINE_ENDPOINT" > /tmp/aks/pipeline_wf.json
+  curl -f -s --retry 3 --retry-all-errors "$WORKFLOWS_IN_PIPELINE_ENDPOINT" > /tmp/aks/pipeline_wf.json
   PREVIOUS_WORKFLOW_ID=$(jq -r --arg current_workflow_id "$CIRCLE_WORKFLOW_ID" --arg current_workflow_name "$CIRCLE_WORKFLOW_NAME" '.items[] | select(.name == $current_workflow_name and .id != $current_workflow_id).id | values' /tmp/aks/pipeline_wf.json | head -n 1)
 }
 
 # Get jobs from the previous workflow and extract the job number for this current jobs previous build.
 get_job_from_previous_workflow() {
   local JOBS_IN_WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$PREVIOUS_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$JOBS_IN_WORKFLOW_ENDPOINT" > /tmp/aks/previous_wf_jobs.json
+  curl -f -s --retry 3 --retry-all-errors "$JOBS_IN_WORKFLOW_ENDPOINT" > /tmp/aks/previous_wf_jobs.json
   JOB_NUM=$(jq -r --arg current_job_name "$CIRCLE_JOB" '.items[] | select(.name | test($current_job_name)).job_number | values' /tmp/aks/previous_wf_jobs.json)
 }
 
 # Download all artifacts from a job
 get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
+  curl -f -s --retry 3 --retry-all-errors "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
   local REQUIRED_ARTIFACTS
   REQUIRED_ARTIFACTS=$(jq -r --argjson node_index "${CIRCLE_NODE_INDEX:-0}" '.items[] | select(.node_index == $node_index) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
 
@@ -38,7 +38,7 @@ get_artifacts_for_job() {
     shift
     local FILE_PATH="$*"
     echo "Downloading: $FILE_PATH"
-    curl -s -L --retry 3 --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$FILE_PATH" "$URL"
+    curl -s -L --retry 3 --retry-all-errors --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$FILE_PATH" "$URL"
   done <<< "$REQUIRED_ARTIFACTS"
 }
 
