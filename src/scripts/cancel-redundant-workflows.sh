@@ -10,6 +10,8 @@ if [ -z "$CIRCLE_TOKEN" ]; then
   exit 1;
 fi
 
+mkdir -p /tmp/aks
+
 # Get the name of the workflow and the related pipeline number
 CURRENT_WORKFLOW_URL="https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}?circle-token=$CIRCLE_TOKEN"
 curl -f -s --retry 3 --retry-all-errors "$CURRENT_WORKFLOW_URL" > /tmp/aks/current_wf.json
