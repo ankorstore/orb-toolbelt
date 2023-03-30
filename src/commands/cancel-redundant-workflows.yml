@@ -1,0 +1,12 @@
+description: >
+  Cancels any previous running or on-hold workflows for the same branch.
+
+  CircleCI can do this automatically when this feature is enabled in project settings for all branches EXCEPT the default branch.
+  There is however no way to filter what branches are affected or to include the default branch.
+  This command can be used with an appropriate `when` step to do this.
+
+  This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
+steps:
+  - run:
+      name: Cancelling redundant workflows
+      command: << include(scripts/cancel-redundant-workflows.sh) >>
