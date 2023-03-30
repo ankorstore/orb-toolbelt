@@ -8,6 +8,7 @@ parameters:
   why:
     type: string
     default: "Cancelling workflow as this job has failed."
+    description: The reason why the workflow is being failed to show in the output
 steps:
   - run:
       name: Failing Fast

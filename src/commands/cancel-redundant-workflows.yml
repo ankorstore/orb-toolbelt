@@ -6,7 +6,18 @@ description: >
   This command can be used with an appropriate `when` step to do this.
 
   This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
+parameters:
+  workflow-name:
+    type: string
+    default: ""
+    description: >-
+      The name of teh workflow you wish to cancel.
+      Will default to the current workflow name.
+      You can use regex if you start your name with ^.
+      Using regex you can target multiple workflow names this can be helpful if you are using setup workflows and wish to cancel any pipelines still setting up as well as if they have started the continuation workflows(s).
 steps:
   - run:
       name: Cancelling redundant workflows
+      environment:
+        TARGET_WORKFLOW_NAME: << parameters.workflow-name >>
       command: << include(scripts/cancel-redundant-workflows.sh) >>
