@@ -26,7 +26,7 @@ fi
 # Get the IDs of pipelines created for the same branch. (Only consider pipelines that have a pipeline number smaller than the current pipeline)
 PIPELINES_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pipeline?circle-token=$CIRCLE_TOKEN&branch=$CIRCLE_BRANCH"
 curl -f -s --retry 3 --retry-all-errors "$PIPELINES_URL" >> /tmp/aks/pipelines.json
-PIPELINE_IDS=$(jq -r --argjson CURRENT_PIPELINE_NUM "$CURRENT_PIPELINE_NUM" '.items[]|select(.state == "created")|select(.number < $CURRENT_PIPELINE_NUM)|.id | values')
+PIPELINE_IDS=$(jq -r --argjson CURRENT_PIPELINE_NUM "$CURRENT_PIPELINE_NUM" '.items[]|select(.state == "created")|select(.number < $CURRENT_PIPELINE_NUM)|.id | values' /tmp/aks/pipelines.json)
 
 ## Get the IDs of currently running/on_hold workflows that have the same name as the current workflow, in all previously created pipelines.
 if [ -n "$PIPELINE_IDS" ]; then
