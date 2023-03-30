@@ -40,9 +40,11 @@ fi
 if [ -s /tmp/aks/wf_to_cancel ]; then
   echo "Cancelling the following redundant \`$WORKFLOW_NAME\` workflow(s):"
   cat /tmp/aks/wf_to_cancel
+  echo ""
   while read -r WORKFLOW_ID;
     do
-      curl -f -s --retry 3 --retry-all-errors --header "Circle-Token: $CIRCLE_TOKEN" --request POST "https://circleci.com/api/v2/workflow/$WORKFLOW_ID/cancel"
+      curl -f -s -o /dev/null --retry 3 --retry-all-errors --header "Circle-Token: $CIRCLE_TOKEN" --request POST "https://circleci.com/api/v2/workflow/$WORKFLOW_ID/cancel"
+      echo "Cancelled: $WORKFLOW_ID"
     done < /tmp/aks/wf_to_cancel
   else
     echo "Nothing to cancel"
