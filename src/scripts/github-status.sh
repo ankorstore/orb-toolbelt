@@ -3,6 +3,14 @@ set -euo pipefail
 [ -n "$CONTEXT" ] || CONTEXT="${GITHUB_STATUS_CONTEXT:-circleci/$CIRCLE_JOB}"
 [ -n "$DESCRIPTION" ] || DESCRIPTION="${GITHUB_STATUS_DESCRIPTION:-$CONTEXT}"
 [ -n "$TARGET" ] || TARGET="${GITHUB_STATUS_TARGET:-$CIRCLE_BUILD_URL}"
+
+if [ "$TARGET" = "job" ]; then
+  TARGET="$CIRCLE_BUILD_URL"
+fi
+if [ "$TARGET" = "workflow" ]; then
+  TARGET="https://app.circleci.com/pipelines/workflows/$CIRCLE_WORKFLOW_ID"
+fi
+
 # Export the latest values for CONTEXT, DESCRIPTION and TARGET so later calls
 # do not need to set them explicitly again.
 {
