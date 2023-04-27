@@ -38,7 +38,7 @@ do
   echo "Starting to check status of $JOB_NAME"
   while true; do
     read -r JOB_STATUS JOB_NUMBER < <(get_job_status "$JOB_NAME")
-    if [ -z "$JOB_NUMBER" ]; then
+    if [ -z "$JOB_STATUS" ]; then
       echo "No job with name $JOB_NAME can be found in this workflow"
       break
     fi
