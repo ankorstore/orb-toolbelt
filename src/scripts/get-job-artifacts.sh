@@ -11,15 +11,40 @@ if [ -z "$CIRCLE_TOKEN" ]; then
   exit 1;
 fi
 
+safeCurl() {
+  local url=$1
+  local temp_out
+  local max_retries=${2:-3}
+  local retry_count=0
+  local timeout=1
+  temp_out=$(mktemp)
+
+  # loop until we get a successful response or reach the maximum number of retries
+  while [[ $retry_count -lt $max_retries ]]; do
+    local status_code
+
+    if status_code="$(curl -L -f -s "$url" --write-out '%{http_code}' -o "$temp_out")"; then
+      if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
+        cat "$temp_out"
+        rm "$temp_out"
+        return 0
+      fi
+    fi
+    retry_count=$(( retry_count + 1 ))
+    timeout=$(( timeout * 2 ))
+    sleep "$timeout"
+  done
+  rm "$temp_out"
+  echo "Request to $url failed with status code $status_code after $max_retries attempts." >&2
+  return 1
+}
+
 # fix unexpanded ~ in CIRCLE_WORKING_DIRECTORY
 CIRCLE_WORKING_DIRECTORY="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}"
 
-mkdir -p /tmp/aks
-WORKFLOW_JOBS_JSON=/tmp/aks/current_wf_jobs.json
-
 get_jobs_in_workflow() {
   local WORKFLOW_JOBS_URL="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON"
+  WORKFLOW_JOBS_JSON=$(safeCurl "$WORKFLOW_JOBS_URL")
 }
 
 get_artifacts_for_jobs() {
@@ -27,7 +52,7 @@ get_artifacts_for_jobs() {
     if [[ $JOB_NAME != ^* ]]; then
       JOB_NAME="^$JOB_NAME\$"
     fi
-    JOBS=$(jq -r --arg JOB_NAME "$JOB_NAME" '.items[] | select(.name | test($JOB_NAME)).job_number' "$WORKFLOW_JOBS_JSON")
+    JOBS=$(jq -r --arg JOB_NAME "$JOB_NAME" '.items[] | select(.name | test($JOB_NAME)).job_number' <<<"$WORKFLOW_JOBS_JSON")
     while read -r JOB_NUM
     do
       get_artifacts_for_job
@@ -36,9 +61,10 @@ get_artifacts_for_jobs() {
 
 get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
+  local ARTIFACTS_JSON
+  ARTIFACTS_JSON=$(safeCurl "$ARTIFACTS_URL")
   local REQUIRED_ARTIFACTS
-  REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test($target_artifact_pattern)) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
+  REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test($target_artifact_pattern)) | "\(.url) \(.path)"' <<<"$ARTIFACTS_JSON")
 
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
