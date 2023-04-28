@@ -44,7 +44,7 @@ get_job_status() {
   local STATUS=""
   local NUMBER=""
   local WORKFLOW_JOBS_URL="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
-  WORKFLOW_JOBS=$(safeCurl "$WORKFLOW_JOBS_URL" > "$WORKFLOW_JOBS_JSON")
+  WORKFLOW_JOBS=$(safeCurl "$WORKFLOW_JOBS_URL")
   STATUS=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .status | values" <<<"$WORKFLOW_JOBS")
   NUMBER=$(jq -r ".items[] | select(.name==\"$NAME_OF_JOB\") | .job_number | values" <<<"$WORKFLOW_JOBS")
   echo "$STATUS $NUMBER"
