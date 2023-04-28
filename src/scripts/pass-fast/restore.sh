@@ -1,29 +1,61 @@
 #!/bin/bash
+
+safeCurl() {
+  local url=$1
+  local temp_out
+  local max_retries=${2:-3}
+  local retry_count=0
+  local timeout=1
+  temp_out=$(mktemp)
+
+  # loop until we get a successful response or reach the maximum number of retries
+  while [[ $retry_count -lt $max_retries ]]; do
+    local status_code
+
+    if status_code="$(curl -L -f -s "$url" --write-out '%{http_code}' -o "$temp_out")"; then
+      if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
+        cat "$temp_out"
+        rm "$temp_out"
+        return 0
+      fi
+    fi
+    retry_count=$(( retry_count + 1 ))
+    timeout=$(( timeout * 2 ))
+    sleep "$timeout"
+  done
+  rm "$temp_out"
+  echo "Request to $url failed with status code $status_code after $max_retries attempts." >&2
+  return 1
+}
 # Get workflows for the current pipeline and extract the previous execution of the current workflows name if there is one
 get_workflows_in_pipeline() {
   local WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$WORKFLOW_ENDPOINT" > /tmp/aks/current_wf.json
+  local CURRENT_WORKFLOW
+  CURRENT_WORKFLOW=$(safeCurl "$WORKFLOW_ENDPOINT")
   local CIRCLE_WORKFLOW_NAME
-  CIRCLE_WORKFLOW_NAME=$(jq -r '.name ' /tmp/aks/current_wf.json)
+  CIRCLE_WORKFLOW_NAME=$(jq -r '.name ' <<<"$CURRENT_WORKFLOW")
 
   local WORKFLOWS_IN_PIPELINE_ENDPOINT="https://circleci.com/api/v2/pipeline/$CIRCLE_PIPELINE_ID/workflow?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$WORKFLOWS_IN_PIPELINE_ENDPOINT" > /tmp/aks/pipeline_wf.json
-  PREVIOUS_WORKFLOW_ID=$(jq -r --arg current_workflow_id "$CIRCLE_WORKFLOW_ID" --arg current_workflow_name "$CIRCLE_WORKFLOW_NAME" '.items[] | select(.name == $current_workflow_name and .id != $current_workflow_id).id | values' /tmp/aks/pipeline_wf.json | head -n 1)
+  local WORKFLOWS_IN_PIPELINE
+  WORKFLOWS_IN_PIPELINE=$(safeCurl "$WORKFLOWS_IN_PIPELINE_ENDPOINT")
+  PREVIOUS_WORKFLOW_ID=$(jq -r --arg current_workflow_id "$CIRCLE_WORKFLOW_ID" --arg current_workflow_name "$CIRCLE_WORKFLOW_NAME" '.items[] | select(.name == $current_workflow_name and .id != $current_workflow_id).id | values' <<<"$WORKFLOWS_IN_PIPELINE" | head -n 1)
 }
 
 # Get jobs from the previous workflow and extract the job number for this current jobs previous build.
 get_job_from_previous_workflow() {
   local JOBS_IN_WORKFLOW_ENDPOINT="https://circleci.com/api/v2/workflow/$PREVIOUS_WORKFLOW_ID/job?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$JOBS_IN_WORKFLOW_ENDPOINT" > /tmp/aks/previous_wf_jobs.json
-  JOB_NUM=$(jq -r --arg current_job_name "$CIRCLE_JOB" '.items[] | select(.name | test($current_job_name)).job_number | values' /tmp/aks/previous_wf_jobs.json)
+  local PREVIOUS_WORKFLOW_JOBS
+  PREVIOUS_WORKFLOW_JOBS=$(safeCurl "$JOBS_IN_WORKFLOW_ENDPOINT")
+  JOB_NUM=$(jq -r --arg current_job_name "$CIRCLE_JOB" '.items[] | select(.name | test($current_job_name)).job_number | values' <<<"$PREVIOUS_WORKFLOW_JOBS")
 }
 
 # Download all artifacts from a job
 get_artifacts_for_job() {
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
-  curl -f -s --retry 3 --retry-all-errors "$ARTIFACTS_URL" > /tmp/aks/artifacts.json
+  local ARTIFACTS_JSON
+  ARTIFACTS_JSON=$(safeCurl "$ARTIFACTS_URL")
   local REQUIRED_ARTIFACTS
-  REQUIRED_ARTIFACTS=$(jq -r --argjson node_index "${CIRCLE_NODE_INDEX:-0}" '.items[] | select(.node_index == $node_index) | "\(.url) \(.path)"' /tmp/aks/artifacts.json)
+  REQUIRED_ARTIFACTS=$(jq -r --argjson node_index "${CIRCLE_NODE_INDEX:-0}" '.items[] | select(.node_index == $node_index) | "\(.url) \(.path)"' <<<"$ARTIFACTS_JSON")
 
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
@@ -61,7 +93,6 @@ if [ -f ".pass/$PASS_RECORD" ]; then
   echo "This job has succeeded previously in this workflow restoring artifacts..."
   # export this to env for the later skip script
   echo 'export PASS_FAST="true"' >> "$BASH_ENV"
-  mkdir -p /tmp/aks
 
   get_workflows_in_pipeline
 
