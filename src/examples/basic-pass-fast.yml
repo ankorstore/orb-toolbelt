@@ -15,6 +15,7 @@ usage:
       resource_class: small
       steps:
         - toolbelt/pass-fast:
+            pipeline-id: << pipeline.id >>
             steps:
               - run:
                   name: Some work you dont want to repeat

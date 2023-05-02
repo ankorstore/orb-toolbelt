@@ -16,6 +16,7 @@ usage:
       parallelism: 2
       steps:
         - toolbelt/pass-fast:
+            pipeline-id: << pipeline.id >>
             steps:
               - run:
                   name: Some work you dont want to repeat
