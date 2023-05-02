@@ -1,0 +1,29 @@
+description: >
+  Perform a sonarcloud scan including uploading test and coverage reports form a previous job
+usage:
+  version: 2.1
+  orbs:
+    toolbelt: ankorstore/toolbelt@1.0.0
+  workflows:
+    fail-fast-example:
+      jobs:
+        - test
+        - toolbelt/sonarcloud:
+            pipeline-id: << pipeline.id >>
+            test-job: test
+            branch: << pipeline.git.branch >><<pipeline.git.tag>>
+            reports-pattern: path/to/reports/.*
+            requires:
+              - test
+  jobs:
+    test:
+      docker:
+        - image: cimg/base
+      resource_class: small
+      steps:
+        - run:
+            name: Run tests
+            command: echo "Run some tests and produce test and coverage reports";
+        - store_artifacts:
+            name: Store reports
+            path: path/to/reports

@@ -1,0 +1,66 @@
+description: >
+  Perform a SonarCloud Scan
+
+  First collects test results and test coverage from prior job artifacts.
+parameters:
+  pipeline-id:
+    type: string
+    description: The CircleCI Pipeline ID ( << pipeline.id >> )
+  app-dir:
+    default: /home/circleci/project
+    description: >-
+      Path to the directory containing your composer.json file. Not needed if
+      composer.json lives in the working directory.
+    type: string
+  main-branch:
+    type: string
+    default: master
+    description: The main branch of the repository
+  branch:
+    type: string
+    description: >-
+      The current branch name ( << pipeline.git.branch >> ).
+      Required to ensure the baseline is updated correctly on the main-branch
+  resource-class:
+    default: medium
+    description: Configure the executor resource class
+    enum:
+      - small
+      - medium
+      - medium+
+      - large
+      - xlarge
+      - 2xlarge
+      - 2xlarge+
+    type: enum
+  test-job:
+    description: >-
+      The test job or jobs from which to download test report and coverage artifacts.
+      For multiple jobs the list must be comma separated.
+      You can use regex if you start your name with ^.
+    type: string
+  reports-pattern:
+    description: >-
+      A regex pattern for the test report and coverage
+      artifact path(s) to be downloaded
+    type: string
+    default: build/.*
+docker:
+  - image: cimg/node:lts
+resource_class: << parameters.resource-class >>
+working_directory: << parameters.app-dir >>
+steps:
+  - pass-fast:
+      pipeline-id: << parameters.pipeline-id >>
+      steps:
+        - run:
+            name: Clean Checkout directory
+            command: rm -rf /home/circleci/project/*
+        - checkout:
+            path: /home/circleci/project
+        - get-job-artifacts:
+            job-name: << parameters.test-job >>
+            path-pattern: << parameters.reports-pattern >>
+        - sonar-scan:
+            branch: << parameters.branch >>
+            main-branch: << parameters.main-branch >>
