@@ -70,7 +70,8 @@ get_artifacts_for_job() {
     echo "No Artifacts found."
     return 0;
   fi
-
+  local tmp_config
+  tmp_config=$(mktemp)
   while read -r ARTIFACT
   do
     # shellcheck disable=SC2086
@@ -87,8 +88,13 @@ get_artifacts_for_job() {
     fi
     echo "Downloading: $FILE_PATH"
     echo " => $OUTPUT_PATH"
-    curl -s -L --retry 3 --retry-all-errors --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" -o "$OUTPUT_PATH" "$URL"
+    {
+      echo "url $URL"
+      echo "output \"$OUTPUT_PATH\""
+    } >> "$tmp_config"
   done <<< "$REQUIRED_ARTIFACTS"
+  curl -K "$tmp_config" -s -L --retry 3 --retry-all-errors --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" --parallel --parallel-immediate --parallel-max "$PROCESSES"
+  rm "$tmp_config"
 }
 
 if [ -n "$TARGET_PATH" ]; then

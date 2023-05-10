@@ -17,6 +17,10 @@ parameters:
   path-pattern:
     description: A regex pattern for the artifact path(s) to be downloaded
     type: string
+  processes:
+    type: integer
+    default: 10
+    description: Number of parallel downloads
 steps:
   - run:
       name: Downloading artifacts
@@ -25,4 +29,5 @@ steps:
         TARGET_PATH: << parameters.save-to-directory >>
         PRESERVE_PATHS: << parameters.preserve-paths >>
         TARGET_ARTIFACT_PATTERN: << parameters.path-pattern >>
+        PROCESSES: << parameters.processes >>
       command: << include(scripts/get-job-artifacts.sh) >>
