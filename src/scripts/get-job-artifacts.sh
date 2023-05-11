@@ -72,6 +72,8 @@ get_artifacts_for_job() {
   fi
   local tmp_config
   tmp_config=$(mktemp)
+  local tmp_zipped
+  tmp_zipped=$(mktemp)
   while read -r ARTIFACT
   do
     # shellcheck disable=SC2086
@@ -92,9 +94,17 @@ get_artifacts_for_job() {
       echo "url $URL"
       echo "output \"$OUTPUT_PATH\""
     } >> "$tmp_config"
+    if [[ "$FILE_PATH" == *.tar.gz ]]; then
+      echo "$OUTPUT_PATH" >> "$tmp_zipped"
+    fi
   done <<< "$REQUIRED_ARTIFACTS"
   curl -K "$tmp_config" -s -L --retry 3 --retry-all-errors --create-dirs -H "Circle-Token: $CIRCLE_TOKEN" --parallel --parallel-immediate --parallel-max "$PROCESSES"
   rm "$tmp_config"
+  if [ "$UNZIP" = 1 ] && [ -s "$tmp_zipped" ]; then
+    echo "Unzipping files:"
+    cat "$tmp_zipped"
+    xargs -n 1 tar -xzf < "$tmp_zipped"
+  fi
 }
 
 if [ -n "$TARGET_PATH" ]; then
