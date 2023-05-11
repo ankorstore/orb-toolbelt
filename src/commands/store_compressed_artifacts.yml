@@ -1,0 +1,18 @@
+description: >
+  Store artifacts as a gzip compressed tarball
+
+  This can be a performance improvement when storing a large number of files or very large but highly compressible files such as logs.
+parameters:
+  tarball-name:
+    type: string
+    description: Name for the compressed tarball, must be unique within this job
+  path:
+    type: string
+    description: Path to file or directory to store
+steps:
+  - run:
+      name: Compressing << parameters.tarball-name >>
+      command: tar -czf << parameters.tarball-name >>.tar.gz << parameters.path >>
+  - store_artifacts:
+      name: Store << parameters.tarball-name >>
+      path: << parameters.tarball-name >>.tar.gz
