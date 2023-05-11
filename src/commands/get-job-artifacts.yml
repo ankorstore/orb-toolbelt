@@ -21,6 +21,10 @@ parameters:
     type: integer
     default: 10
     description: Number of parallel downloads
+  unzip:
+    type: boolean
+    default: true
+    description: Unzip any tarballs in the downloaded artifacts
 steps:
   - run:
       name: Downloading artifacts
@@ -30,4 +34,5 @@ steps:
         PRESERVE_PATHS: << parameters.preserve-paths >>
         TARGET_ARTIFACT_PATTERN: << parameters.path-pattern >>
         PROCESSES: << parameters.processes >>
+        UNZIP: << parameters.unzip >>
       command: << include(scripts/get-job-artifacts.sh) >>
