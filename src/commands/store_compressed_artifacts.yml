@@ -9,6 +9,10 @@ parameters:
   path:
     type: string
     description: Path to file or directory to store
+  destination:
+    type: string
+    description: Destination directory to store the tarball, defaults to the path but should be provided if the path is a file.
+    default: ""
 steps:
   - run:
       name: Compressing << parameters.tarball-name >>
@@ -16,7 +20,18 @@ steps:
         TARBALL_NAME: << parameters.tarball-name >>
         ARTIFACT_PATH: << parameters.path >>
       command: << include(scripts/store_compressed_artifacts.sh) >>
-  - store_artifacts:
-      name: Store << parameters.tarball-name >>
-      path: /tmp/<< parameters.tarball-name >>
-      destination: ""
+  - when:
+      condition: << parameters.destination >>
+      steps:
+        - store_artifacts:
+            name: Store << parameters.tarball-name >>
+            path: << parameters.tarball-name >>
+            destination: << parameters.destination >>
+  - when:
+      condition:
+        not: << parameters.destination >>
+      steps:
+        - store_artifacts:
+            name: Store << parameters.tarball-name >>
+            path: << parameters.tarball-name >>
+            destination: << parameters.path >>
