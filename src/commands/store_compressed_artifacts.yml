@@ -25,7 +25,7 @@ steps:
       steps:
         - store_artifacts:
             name: Store << parameters.tarball-name >>
-            path: << parameters.tarball-name >>
+            path: /tmp/<< parameters.tarball-name >>
             destination: << parameters.destination >>
   - when:
       condition:
@@ -33,5 +33,5 @@ steps:
       steps:
         - store_artifacts:
             name: Store << parameters.tarball-name >>
-            path: << parameters.tarball-name >>
+            path: /tmp/<< parameters.tarball-name >>
             destination: << parameters.path >>
