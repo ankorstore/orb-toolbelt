@@ -104,6 +104,7 @@ get_artifacts_for_job() {
     echo "Unzipping files:"
     cat "$tmp_zipped"
     xargs -n 1 tar -xzf < "$tmp_zipped"
+    xargs -n 1 rm < "$tmp_zipped"
   fi
 }
 
