@@ -104,6 +104,7 @@ get_artifacts_for_job() {
     echo "Unzipping files:"
     cat "$tmp_zipped"
     xargs -n 1 tar -xzf < "$tmp_zipped"
+    xargs -n 1 rm < "$tmp_zipped"
   fi
 }
 
@@ -114,7 +115,7 @@ else
   TARGET_PATH="$CIRCLE_WORKING_DIRECTORY"
 fi
 
-echo "Downloading artifact(s) from job(s): $JOB_LIST"
+echo "Downloading artifact(s) matching \`$TARGET_ARTIFACT_PATTERN\` from job(s): $JOB_LIST"
 echo "Downloading artifact(s) to $TARGET_PATH"
 get_jobs_in_workflow
 for JOB_NAME in ${JOB_LIST//,/ }
