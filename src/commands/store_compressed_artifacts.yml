@@ -12,9 +12,10 @@ parameters:
 steps:
   - run:
       name: Compressing << parameters.tarball-name >>
-      command: |
-        mkdir "/tmp/<< parameters.tarball-name >>"
-        tar -czf "/tmp/<< parameters.tarball-name >>/<< parameters.tarball-name >>-$CIRCLE_NODE_INDEX.tar.gz" << parameters.path >>
+      environment:
+        TARBALL_NAME: << parameters.tarball-name >>
+        ARTIFACT_PATH: << parameters.path >>
+      command: << include(scripts/store_compressed_artifacts.sh) >>
   - store_artifacts:
       name: Store << parameters.tarball-name >>
       path: /tmp/<< parameters.tarball-name >>
