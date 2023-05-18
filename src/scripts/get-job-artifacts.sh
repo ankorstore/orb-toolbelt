@@ -48,24 +48,31 @@ get_jobs_in_workflow() {
 }
 
 get_artifacts_for_jobs() {
-    local JOB_NAME=$1;
-    if [[ $JOB_NAME != ^* ]]; then
-      JOB_NAME="^$JOB_NAME\$"
+    local job_name=$1;
+    if [[ $job_name != ^* ]]; then
+      job_name="^$job_name\$"
     fi
-    JOBS=$(jq -r --arg JOB_NAME "$JOB_NAME" '.items[] | select(.name | test($JOB_NAME)).job_number' <<<"$WORKFLOW_JOBS_JSON")
-    while read -r JOB_NUM
+    echo "Getting artifacts for jobs matching \`$job_name\`"
+    JOBS=$(jq -r --arg job_name "$job_name" '.items[] | select(.name | test($job_name)) | "\(.job_number) \(.name)"' <<<"$WORKFLOW_JOBS_JSON")
+    if [ -z "$JOBS" ]; then
+      echo "No jobs found matching \`$job_name\`"
+      return 0;
+    fi
+    while read -r JOB_NUM JOB_NAME
     do
-      get_artifacts_for_job
+      get_artifacts_for_job "$JOB_NUM" "$JOB_NAME"
     done <<< "$JOBS"
 }
 
 get_artifacts_for_job() {
+  local JOB_NUM=$1
+  local JOB_NAME=$2
   local ARTIFACTS_URL="https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$JOB_NUM/artifacts?circle-token=$CIRCLE_TOKEN"
   local ARTIFACTS_JSON
   ARTIFACTS_JSON=$(safeCurl "$ARTIFACTS_URL")
   local REQUIRED_ARTIFACTS
   REQUIRED_ARTIFACTS=$(jq -r --arg target_artifact_pattern "$TARGET_ARTIFACT_PATTERN" '.items[] | select(.path| test($target_artifact_pattern)) | "\(.url) \(.path)"' <<<"$ARTIFACTS_JSON")
-
+  echo "Getting artifacts for job \`$JOB_NAME\` ($JOB_NUM)"
   if [ -z "$REQUIRED_ARTIFACTS" ]; then
     echo "No Artifacts found."
     return 0;
@@ -118,7 +125,11 @@ fi
 echo "Downloading artifact(s) matching \`$TARGET_ARTIFACT_PATTERN\` from job(s): $JOB_LIST"
 echo "Downloading artifact(s) to $TARGET_PATH"
 get_jobs_in_workflow
-for JOB_NAME in ${JOB_LIST//,/ }
-do
-  get_artifacts_for_jobs "$JOB_NAME"
-done
+if [[ "$JOB_LIST" != ^* ]]; then
+  for job_name in ${JOB_LIST//,/ }
+  do
+    get_artifacts_for_jobs "$job_name"
+  done
+else
+  get_artifacts_for_jobs "$JOB_LIST"
+fi
