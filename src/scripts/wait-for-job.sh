@@ -67,7 +67,7 @@ do
       echo "No job with name $JOB_NAME can be found in this workflow"
       break
     fi
-    if [[ "$JOB_STATUS" != "queued" && "$JOB_STATUS" != "running" && "$JOB_STATUS" != "not_running" ]]; then
+    if [[ "$JOB_STATUS" != "queued" && "$JOB_STATUS" != "running" && "$JOB_STATUS" != "not_running" && "$JOB_STATUS" != "blocked" ]]; then
       echo "Job $JOB_NAME has completed! Status: $JOB_STATUS"
       if [ "$JOB_STATUS" != "success" ] && [ "$CHECK_FOR_FAILURE" = 1 ]; then
         echo "The $JOB_NAME job failed, failing this job.";
