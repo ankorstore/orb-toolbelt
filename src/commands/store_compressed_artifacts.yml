@@ -3,7 +3,7 @@ description: >
 
   This can be a performance improvement when storing a large number of files or very large but highly compressible files such as logs.
 parameters:
-  tarball-name:
+  tarball_name:
     type: string
     description: Name for the compressed tarball, must be unique within this job
   path:
@@ -15,23 +15,23 @@ parameters:
     default: ""
 steps:
   - run:
-      name: Compressing << parameters.tarball-name >>
+      name: Compressing << parameters.tarball_name >>
       environment:
-        TARBALL_NAME: << parameters.tarball-name >>
+        TARBALL_NAME: << parameters.tarball_name >>
         ARTIFACT_PATH: << parameters.path >>
       command: << include(scripts/store_compressed_artifacts.sh) >>
   - when:
       condition: << parameters.destination >>
       steps:
         - store_artifacts:
-            name: Store << parameters.tarball-name >>
-            path: /tmp/<< parameters.tarball-name >>
+            name: Store << parameters.tarball_name >>
+            path: /tmp/<< parameters.tarball_name >>
             destination: << parameters.destination >>
   - when:
       condition:
         not: << parameters.destination >>
       steps:
         - store_artifacts:
-            name: Store << parameters.tarball-name >>
-            path: /tmp/<< parameters.tarball-name >>
+            name: Store << parameters.tarball_name >>
+            path: /tmp/<< parameters.tarball_name >>
             destination: << parameters.path >>

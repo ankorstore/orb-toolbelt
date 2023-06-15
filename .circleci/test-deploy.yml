@@ -1,28 +1,35 @@
 version: 2.1
 orbs:
-  toolbelt: ankorstore/toolbelt@dev:<<pipeline.git.revision>>
-  orb-tools: circleci/orb-tools@11.5
+  orb-tools: circleci/orb-tools@12.0
 
-filters: &filters
+# Filter for release tags.
+release-filters: &release-filters
   branches:
-    ignore: master
+    ignore: /.*/
   tags:
-    only: /.*/
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 
 workflows:
   test-deploy:
     jobs:
-      - orb-tools/pack:
-          filters: *filters
+      - orb-tools/pack
       - orb-tools/publish:
-          orb-name: ankorstore/toolbelt
-          vcs-type: << pipeline.project.type >>
-          pub-type: production
+          name: Publish Development Version
+          orb_name: ankorstore/toolbelt
+          vcs_type: << pipeline.project.type >>
+          pub_type: dev
           requires:
             - orb-tools/pack
           context: orb-publishing
           filters:
-            branches:
-              ignore: /.*/
             tags:
-              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+              ignore: /.*/
+      - orb-tools/publish:
+          name: Publish Production Release
+          orb_name: ankorstore/toolbelt
+          vcs_type: << pipeline.project.type >>
+          pub_type: production
+          requires:
+            - orb-tools/pack
+          context: orb-publishing
+          filters: *release-filters

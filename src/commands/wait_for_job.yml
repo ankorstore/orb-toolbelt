@@ -7,24 +7,24 @@ description: >
 
   This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
 parameters:
-  job-name:
+  job_name:
     description: >-
       The job or jobs on which to wait. If job not found continue immediately.
       For multiple jobs the list must be comma separated.
     type: string
-  continue-on-timeout:
+  continue_on_timeout:
     default: false
     description: If true and wait time exceeds the max wait time, completes and lets future steps continue
     type: boolean
-  max-wait-time:
+  max_wait_time:
     default: 1800
     description: The max wait time in seconds a job should wait for before killing itself.
     type: integer
-  sleep-time-between-checks:
+  sleep_time_between_checks:
     default: 15
     description: How long to sleep between checks.
     type: integer
-  check-for-failure:
+  check_for_failure:
     default: false
     description: Make this job fail if any of jobs being waited for fail or are cancelled
     type: boolean
@@ -32,9 +32,9 @@ steps:
   - run:
       name: Waiting for job(s) in workflow
       environment:
-        JOB_LIST: << parameters.job-name >>
-        CONTINUE_ON_TIMEOUT: << parameters.continue-on-timeout >>
-        MAX_WAIT_TIME: << parameters.max-wait-time >>
-        SLEEP_TIME: << parameters.sleep-time-between-checks >>
-        CHECK_FOR_FAILURE: << parameters.check-for-failure >>
-      command: << include(scripts/wait-for-job.sh) >>
+        JOB_LIST: << parameters.job_name >>
+        CONTINUE_ON_TIMEOUT: << parameters.continue_on_timeout >>
+        MAX_WAIT_TIME: << parameters.max_wait_time >>
+        SLEEP_TIME: << parameters.sleep_time_between_checks >>
+        CHECK_FOR_FAILURE: << parameters.check_for_failure >>
+      command: << include(scripts/wait_for_job.sh) >>

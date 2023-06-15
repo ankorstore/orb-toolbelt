@@ -15,4 +15,4 @@ steps:
       when: on_fail
       environment:
         WHY: << parameters.why >>
-      command: << include(scripts/fail-fast.sh) >>
+      command: << include(scripts/fail_fast.sh) >>

@@ -5,14 +5,14 @@ usage:
   orbs:
     toolbelt: ankorstore/toolbelt@1.0.0
   workflows:
-    fail-fast-example:
+    fail_fast-example:
       jobs:
         - test
         - toolbelt/sonarcloud:
-            pipeline-id: << pipeline.id >>
-            test-job: test
+            pipeline_id: << pipeline.id >>
+            test_job: test
             branch: << pipeline.git.branch >><<pipeline.git.tag>>
-            reports-pattern: path/to/reports/.*
+            reports_pattern: path/to/reports/.*
             requires:
               - test
   jobs:

@@ -3,16 +3,16 @@ description: >
 
   First collects test results and test coverage from prior job artifacts.
 parameters:
-  pipeline-id:
+  pipeline_id:
     type: string
     description: The CircleCI Pipeline ID ( << pipeline.id >> )
-  app-dir:
+  app_dir:
     default: /home/circleci/project
     description: >-
       Path to the directory containing your composer.json file. Not needed if
       composer.json lives in the working directory.
     type: string
-  main-branch:
+  main_branch:
     type: string
     default: master
     description: The main branch of the repository
@@ -20,8 +20,8 @@ parameters:
     type: string
     description: >-
       The current branch name ( << pipeline.git.branch >> ).
-      Required to ensure the baseline is updated correctly on the main-branch
-  resource-class:
+      Required to ensure the baseline is updated correctly on the main_branch
+  resource_class:
     default: medium
     description: Configure the executor resource class
     enum:
@@ -33,13 +33,13 @@ parameters:
       - 2xlarge
       - 2xlarge+
     type: enum
-  test-job:
+  test_job:
     description: >-
       The test job or jobs from which to download test report and coverage artifacts.
       For multiple jobs the list must be comma separated.
       You can use regex if you start your name with ^.
     type: string
-  reports-pattern:
+  reports_pattern:
     description: >-
       A regex pattern for the test report and coverage
       artifact path(s) to be downloaded
@@ -47,20 +47,20 @@ parameters:
     default: build/.*
 docker:
   - image: cimg/node:lts
-resource_class: << parameters.resource-class >>
-working_directory: << parameters.app-dir >>
+resource_class: << parameters.resource_class >>
+working_directory: << parameters.app_dir >>
 steps:
-  - pass-fast:
-      pipeline-id: << parameters.pipeline-id >>
+  - pass_fast:
+      pipeline_id: << parameters.pipeline_id >>
       steps:
         - run:
             name: Clean Checkout directory
             command: rm -rf /home/circleci/project/*
         - checkout:
             path: /home/circleci/project
-        - get-job-artifacts:
-            job-name: << parameters.test-job >>
-            path-pattern: << parameters.reports-pattern >>
-        - sonar-scan:
+        - get_job_artifacts:
+            job_name: << parameters.test_job >>
+            path_pattern: << parameters.reports_pattern >>
+        - sonar_scan:
             branch: << parameters.branch >>
-            main-branch: << parameters.main-branch >>
+            main_branch: << parameters.main_branch >>

@@ -1,20 +1,20 @@
 description: Get artifacts from a job or jobs
 parameters:
-  job-name:
+  job_name:
     description: >-
       The job or jobs from which to get artifacts.
       For multiple jobs the list must be comma separated.
       You can use regex if you start your name with ^.
     type: string
-  save-to-directory:
+  save_to_directory:
     description: Where to save the file(s) to (relative to working directory)
     type: string
     default: ""
-  preserve-paths:
+  preserve_paths:
     description: Preserve the artifact paths/directories
     type: boolean
     default: true
-  path-pattern:
+  path_pattern:
     description: A regex pattern for the artifact path(s) to be downloaded
     type: string
   processes:
@@ -29,10 +29,10 @@ steps:
   - run:
       name: Downloading artifacts
       environment:
-        JOB_LIST: << parameters.job-name >>
-        TARGET_PATH: << parameters.save-to-directory >>
-        PRESERVE_PATHS: << parameters.preserve-paths >>
-        TARGET_ARTIFACT_PATTERN: << parameters.path-pattern >>
+        JOB_LIST: << parameters.job_name >>
+        TARGET_PATH: << parameters.save_to_directory >>
+        PRESERVE_PATHS: << parameters.preserve_paths >>
+        TARGET_ARTIFACT_PATTERN: << parameters.path_pattern >>
         PROCESSES: << parameters.processes >>
         UNZIP: << parameters.unzip >>
-      command: << include(scripts/get-job-artifacts.sh) >>
+      command: << include(scripts/get_job_artifacts.sh) >>

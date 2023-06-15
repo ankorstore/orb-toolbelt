@@ -5,7 +5,7 @@ usage:
   orbs:
     toolbelt: ankorstore/toolbelt@1.0.0
   workflows:
-    fail-fast-example:
+    fail_fast-example:
       jobs:
         - long-job
         - fail-job
@@ -28,4 +28,4 @@ usage:
             command: |
               echo "Failing"
               exit 1
-        - toolbelt/fail-fast
+        - toolbelt/fail_fast

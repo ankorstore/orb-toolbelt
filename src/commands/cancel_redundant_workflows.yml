@@ -7,7 +7,7 @@ description: >
 
   This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
 parameters:
-  workflow-name:
+  workflow_name:
     type: string
     default: ""
     description: >-
@@ -19,5 +19,5 @@ steps:
   - run:
       name: Cancelling redundant workflows
       environment:
-        TARGET_WORKFLOW_NAME: << parameters.workflow-name >>
-      command: << include(scripts/cancel-redundant-workflows.sh) >>
+        TARGET_WORKFLOW_NAME: << parameters.workflow_name >>
+      command: << include(scripts/cancel_redundant_workflows.sh) >>
