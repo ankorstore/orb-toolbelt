@@ -9,4 +9,4 @@ if ! command -v yq >/dev/null; then
 	exit 1
 fi
 curl -f -s -o ./hack/orb.bats https://raw.githubusercontent.com/CircleCI-Public/orb-tools-orb/master/src/scripts/review.bats
-ORB_VAL_RC_EXCLUDE=RC010 ORB_VAL_MAX_COMMAND_LENGTH=120 bats ./hack/orb.bats
+ORB_VAL_MAX_COMMAND_LENGTH=120 bats ./hack/orb.bats

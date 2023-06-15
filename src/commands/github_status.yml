@@ -40,4 +40,4 @@ steps:
         CONTEXT: << parameters.context >>
         DESCRIPTION: << parameters.description >>
         TARGET: << parameters.target >>
-      command: << include(scripts/github-status.sh) >>
+      command: << include(scripts/github_status.sh) >>

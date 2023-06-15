@@ -9,10 +9,10 @@ description: >
 
   This command requires a CIRCLE_TOKEN env var to be set with a valid CircleCi API Token.
 parameters:
-  pipeline-id:
+  pipeline_id:
     type: string
     description: The CircleCI Pipeline ID ( << pipeline.id >> )
-  test-results:
+  test_results:
     type: string
     description: Path for previous test results, must have been stored as an artifact
     default: ""
@@ -23,12 +23,12 @@ steps:
   - restore_cache:
       name: Getting job history
       keys:
-        - pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline-id >>
+        - pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline_id >>
   - run:
       name: Restoring previous artifacts
       environment:
-        CIRCLE_PIPELINE_ID: << parameters.pipeline-id >>
-      command: << include(scripts/pass-fast/restore.sh) >>
+        CIRCLE_PIPELINE_ID: << parameters.pipeline_id >>
+      command: << include(scripts/pass_fast/restore.sh) >>
   - store_artifacts:
       name: Storing restored artifacts
       path: .
@@ -36,22 +36,22 @@ steps:
   - when:
       condition:
         not:
-          equal: [ "", << parameters.test-results >> ]
+          equal: [ "", << parameters.test_results >> ]
       steps:
         - store_test_results:
             name: Upload previous test results for CircleCi
-            path: << parameters.test-results >>
+            path: << parameters.test_results >>
   - run:
       name: Pass fast if we have a previous pass of this job in this pipeline
-      command: << include(scripts/pass-fast/skip.sh) >>
+      command: << include(scripts/pass_fast/skip.sh) >>
   - steps: << parameters.steps >>
   - run:
       name: Recording job success for this revision
       environment:
-        CIRCLE_PIPELINE_ID: << parameters.pipeline-id >>
-      command: << include(scripts/pass-fast/record.sh) >>
+        CIRCLE_PIPELINE_ID: << parameters.pipeline_id >>
+      command: << include(scripts/pass_fast/record.sh) >>
   - save_cache:
       name: Saving job success for this revision
-      key: pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline-id >>
+      key: pass-{{ .Environment.CIRCLE_JOB }}-{{ .Environment.CIRCLE_NODE_INDEX }}-<< parameters.pipeline_id >>
       paths:
         - .pass
