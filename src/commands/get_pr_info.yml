@@ -1,0 +1,38 @@
+description: >
+  Find the latest GitHub PR associated with the head commit and populate environment variables with information about it.
+
+  Sets the following environment variables:
+      * `GITHUB_PR_BASE_BRANCH` - The base branch for the PR.
+      * `GITHUB_PR_BASE_BRANCH_SLUG` - The base branch for the PR, slugified.
+      * `CIRCLE_BRANCH_SLUG` - The PR branch, slugified.
+      * `GITHUB_PR_NUMBER` - The PR number.
+      * `GITHUB_PR_TITLE` - The title of the PR.
+      * `GITHUB_PR_LABELS` - The labels of the PR, comma seperated.
+      * `GITHUB_PR_COMMIT_MESSAGE` - The PR head commit message. (Optional, see `get_commit_message` parameter
+      * `GITHUB_PR_AUTHOR_USERNAME` - The PR author's username.
+      * `GITHUB_PR_AUTHOR_NAME` - The PR author's name. (Optional, see `get_pr_author` parameter)
+      * `GITHUB_PR_AUTHOR_EMAIL` - The PR author's email address. (Optional, see `get_pr_author` parameter)
+
+  This command requires a GITHUB_TOKEN env var to be set with a valid GitHub API Token.
+parameters:
+  get_commit_message:
+    default: false
+    description: If true, also sets GITHUB_PR_COMMIT_MESSAGE. This requires an additional API call.
+    type: boolean
+  get_pr_author:
+    default: false
+    description: If true, also sets GITHUB_PR_AUTHOR_EMAIL and GITHUB_PR_AUTHOR_NAME. This requires an additional API call.
+    type: boolean
+  fail_without_pr:
+    default: true
+    description: If true, this command will fail if there is no associated PR, if false the job will continue anyway.
+    type: boolean
+steps:
+  - github-cli/install
+  - run:
+      name: Get PR information
+      environment:
+        GET_COMMIT_MESSAGE: << parameters.get_commit_message >>
+        GET_PR_AUTHOR: << parameters.get_pr_author >>
+        FAIL_WITHOUT_PR: << parameters.fail_without_pr >>
+      command: << include(scripts/get_pr_info.sh) >>
