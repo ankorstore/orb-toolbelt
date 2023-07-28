@@ -1,0 +1,61 @@
+description: >
+  Retrieve previous test timings for the job to facilitate test splitting.
+parameters:
+  timings_dir:
+    type: string
+    default: build/test-timings
+    description: Path to test timings relative to working directory
+  test_report_dir:
+    type: string
+    description: Path to test reports relative to working directory
+  fallback_branch:
+    type: string
+    description: The default branch for the repository or pr target branch, used as fallback if no timings are found for the current branch
+  key:
+    type: string
+    description: The cache key to use, omit to use the job name
+    default: ''
+steps:
+  - when:
+      condition: << parameters.key >>
+      steps:
+        - restore_cache:
+            name: Locating test timing data
+            keys:
+              - test-timings-<< parameters.key >>-{{ .Branch }}-{{ .Revision }}
+              - test-timings-<< parameters.key >>-{{ .Branch }}
+              - test-timings-<< parameters.key >>-<< parameters.fallback_branch >>
+              - test-timings-<< parameters.key >>
+  - when:
+      condition:
+        not: << parameters.key >>
+      steps:
+        - restore_cache:
+            name: Locating test timing data
+            keys:
+              - test-timings-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}
+              - test-timings-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}
+              - test-timings-{{ .Environment.CIRCLE_JOB }}-<< parameters.fallback_branch >>
+              - test-timings-{{ .Environment.CIRCLE_JOB }}
+  - run:
+      name: Inspect test timing data
+      environment:
+        TIMINGS_DIR: << parameters.timings_dir >>
+      command: << include(scripts/test_timings/inspect_timings.sh) >>
+  - when:
+      condition: << parameters.key >>
+      steps:
+        - save_cache:
+            name: Fixing test timing data for revision
+            key: test-timings-<< parameters.key >>-{{ .Branch }}-{{ .Revision }}-{{ .BuildNum }}
+            paths:
+              - << parameters.timings_dir >>
+  - when:
+      condition:
+        not: << parameters.key >>
+      steps:
+        - save_cache:
+            name: Fixing test timing data for revision
+            key: test-timings-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}-{{ .BuildNum }}
+            paths:
+              - << parameters.timings_dir >>

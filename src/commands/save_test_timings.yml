@@ -1,0 +1,42 @@
+description: >
+  Save test timings to facilitate test splitting.
+parameters:
+  timings_dir:
+    type: string
+    default: build/test-timings
+    description: Path to store test timings relative to working directory
+  test_report_dir:
+    type: string
+    description: Path to test reports relative to working directory
+  key:
+    type: string
+    description: The cache key to use, omit to use the job name
+    default: ''
+steps:
+  - run:
+      name: Storing test timings
+      when: on_success
+      environment:
+        TEST_REPORT_DIR: << parameters.test_report_dir >>
+        TIMINGS_DIR: << parameters.timings_dir >>
+        TIMINGS_KEY: << parameters.key >>
+      command: << include(scripts/test_timings/store_timings.sh) >>
+  - when:
+      condition: << parameters.key >>
+      steps:
+        - save_cache:
+            name: Saving test timing data
+            key: test-timings-<< parameters.key >>-{{ .Branch }}-{{ .Revision }}-{{ epoch }}
+            when: on_success
+            paths:
+              - << parameters.timings_dir >>
+  - when:
+      condition:
+        not: << parameters.key >>
+      steps:
+        - save_cache:
+            name: Saving test timing data
+            key: test-timings-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{ .Revision }}-{{ epoch }}
+            when: on_success
+            paths:
+              - << parameters.timings_dir >>
