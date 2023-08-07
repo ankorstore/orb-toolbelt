@@ -1,0 +1,35 @@
+description: >
+  Post a comment on a PR.
+
+  Provide a comment to post on the PR, or a path to a file containing the comment.
+  Optionally provide a tag to identify the comment, if a comment with this tag exists it will be updated otherwise
+  a new comment will be posted.
+
+  This command requires a GITHUB_TOKEN env var to be set with a valid GitHub API Token.
+parameters:
+  comment:
+    default: ""
+    description: The comment to post on the PR.
+    type: string
+  comment_file:
+    default: ""
+    description: The path to a file containing the comment to post on the PR. If specified, this will override the comment parameter.
+    type: string
+  comment_tag:
+    default: ""
+    description: The tag to use to identify the comment, if a comment with this tag exists it will be updated.
+    type: string
+  fail_without_pr:
+    default: false
+    description: If true, this command will fail if there is no associated PR, if false the job will continue anyway.
+    type: boolean
+steps:
+  - github-cli/install
+  - run:
+      name: Post PR comment
+      environment:
+        COMMENT: << parameters.comment >>
+        COMMENT_FILE: << parameters.comment_file >>
+        COMMENT_TAG: << parameters.comment_tag >>
+        FAIL_WITHOUT_PR: << parameters.fail_without_pr >>
+      command: << include(scripts/post_pr_comment.sh) >>
