@@ -2,7 +2,7 @@ description: Perform a SonarCloud scan and upload results
 parameters:
   scanner_version:
     type: string
-    default: "4.7.0.2747"
+    default: "5.0.1.3006"
     description: The sonar scanner version to use
   sonar_token:
     description: The name of the environment variable where the SonarCloud API token is stored
@@ -45,7 +45,7 @@ steps:
         - restore_cache:
             name: Restoring sonar scanner analysis cache
             keys:
-              - sonarcloud-cache-<< parameters.cache_key >>
+              - sonarcloud-cache-<< parameters.cache_key >>-<< parameters.scanner_version >>
   - run:
       name: Running SonarCloud scan
       environment:
@@ -67,5 +67,5 @@ steps:
       steps:
         - save_cache:
             name: Saving sonar scanner analysis cache
-            key: sonarcloud-cache-<< parameters.cache_key >>-{{ .Revision }}
+            key: sonarcloud-cache-<< parameters.cache_key >>-<< parameters.scanner_version >>-{{ .Revision }}
             paths: << parameters.cache_dir >>
