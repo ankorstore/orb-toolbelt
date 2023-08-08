@@ -7,6 +7,14 @@ description: >
 
   This command requires a GITHUB_TOKEN env var to be set with a valid GitHub API Token.
 parameters:
+  when:
+    default: always
+    description: When to run this command.
+    enum:
+      - always
+      - on_success
+      - on_fail
+    type: enum
   comment:
     default: ""
     description: The comment to post on the PR.
@@ -24,9 +32,11 @@ parameters:
     description: If true, this command will fail if there is no associated PR, if false the job will continue anyway.
     type: boolean
 steps:
-  - github-cli/install
+  - install_github_cli:
+      when: << parameters.when >>
   - run:
       name: Post PR comment
+      when: << parameters.when >>
       environment:
         COMMENT: << parameters.comment >>
         COMMENT_FILE: << parameters.comment_file >>
