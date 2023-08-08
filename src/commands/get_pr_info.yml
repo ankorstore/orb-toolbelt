@@ -28,7 +28,7 @@ parameters:
     description: If true, this command will fail if there is no associated PR, if false the job will continue anyway.
     type: boolean
 steps:
-  - github-cli/install
+  - install_github_cli
   - run:
       name: Get PR information
       environment:
