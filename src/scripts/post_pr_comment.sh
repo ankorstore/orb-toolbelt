@@ -2,6 +2,16 @@
 
 set -eo pipefail
 
+if [ -n "$COMMENT_FILE" ] && [ -f "$COMMENT_FILE" ]; then
+  echo "COMMENT_FILE: $COMMENT_FILE"
+  COMMENT=$(cat "$COMMENT_FILE")
+fi
+
+if [ -z "$COMMENT" ]; then
+  echo "No comment provided, skipping comment"
+  exit 0
+fi
+
 if ! (command -v jq >/dev/null 2>&1); then
   echo "This command requires jq to be installed"
   exit 1
@@ -23,9 +33,7 @@ fi
 echo "PR_NUMBER: $PR_NUMBER"
 FULL_COMMENT_TAG=""
 COMMENT_ID=""
-if [ -n "$COMMENT_FILE" ] && [ -f "$COMMENT_FILE" ]; then
-  COMMENT=$(cat "$COMMENT_FILE")
-fi
+
 echo "$COMMENT" > body.md
 
 if [ -n "$COMMENT_TAG" ]; then
