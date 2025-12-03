@@ -58,6 +58,7 @@ steps:
             command: rm -rf /home/circleci/project/*
         - checkout:
             path: /home/circleci/project
+            method: full
         - get_job_artifacts:
             job_name: << parameters.test_job >>
             path_pattern: << parameters.reports_pattern >>
