@@ -2,7 +2,7 @@ description: Perform a SonarCloud scan and upload results
 parameters:
   scanner_version:
     type: string
-    default: "5.0.1.3006"
+    default: "8.0.1.6346"
     description: The sonar scanner version to use
   sonar_token:
     description: The name of the environment variable where the SonarCloud API token is stored
